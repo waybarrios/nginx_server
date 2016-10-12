@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+ nginx-server:
+   build: .
+   ports:
+     - "80:80"
+   restart: always
+   networks:
+     - labsgeonode_piensa
+     - hhypermap_default
+   external_links:
+     - nginx_labs
+     - nginx_registry
+   extra_hosts:
+     - "wall:190.147.134.5"
+networks:
+  labsgeonode_piensa:
+    external: true
+  hhypermap_default:
+    external: true

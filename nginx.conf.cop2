@@ -1,0 +1,64 @@
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+  worker_connections  1024;
+}
+
+http{
+    # Default server block for undefined domains
+    server {
+        listen 80;
+        return 404;
+    }
+
+
+upstream labs.wall.piensa.co {
+    server 190.147.134.5:991;
+}
+
+server {
+    #ssl_certificate /etc/nginx/certs/demo.pem;
+    #ssl_certificate_key /etc/nginx/certs/demo.key;
+
+    gzip_types text/plain text/css application/json application/x-javascript
+               text/xml application/xml application/xml+rss text/javascript;
+
+    server_name labs.wall.piensa.co;
+
+    location / {
+             proxy_pass http://labs.wall.piensa.co;
+             proxy_http_version 1.1;
+             proxy_set_header Upgrade $http_upgrade;
+             proxy_set_header Connection "upgrade";
+             proxy_set_header Host $http_host;
+             proxy_set_header X-Forwarded-Proto $scheme;
+             proxy_set_header X-Forwarded-For $remote_addr;
+             proxy_set_header X-Forwarded-Port $server_port;
+             proxy_set_header X-Request-Start $msec;
+             proxy_redirect off;
+             proxy_set_header X-NginX-Proxy true;
+    }
+}
+
+upstream registry.localhost {
+    server 190.147.134.5:992;
+}
+
+server {
+    #ssl_certificate /etc/nginx/certs/demo.pem;
+    #ssl_certificate_key /etc/nginx/certs/demo.key;
+
+    gzip_types text/plain text/css application/json application/x-javascript
+               text/xml application/xml application/xml+rss text/javascript;
+
+    server_name registry.localhost;
+
+    location / {
+        proxy_pass http://registry.localhost;
+    }
+}
+}
